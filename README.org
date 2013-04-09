@@ -1,0 +1,83 @@
+Build LBNE Software From Source 
+
+* What?
+
+This package provides a top-level script to build LBNE software from
+source following the directions recommended by FNAL.
+
+https://cdcvs.fnal.gov/redmine/projects/cet-is-public/wiki/Build_packages_required_by_art
+
+* Why?
+
+This package solves a few issues with simply following the instructions:
+
+ - The instructions require many manual steps and PEBKACs are easy.
+
+ - The instructions need adjustments to support novel platforms.  This
+   package captures those for feeding back.
+
+
+* How?
+
+Details on how to use this package.
+
+** Feeling lucky?
+
+In principle one might be able to do the following from a green-field:
+
+#+BEGIN_EXAMPLE
+git clone git://github.com/brettviren/lbne-ups-build-driver.git
+./notes build-config
+#+END_EXAMPLE
+
+You can do =tail -f logs/log.recent= in a second terminal to see
+details.
+
+** Not so lucky
+
+If things fail some ways to deal with them.
+
+*** Adjusting the =build-config=
+
+The =build-config= file holds some variables driving the build.  It
+defines URLs for source tar files from FNAL, local directories to
+perform the build and qualifiers to modify how the build is done.
+
+For example, newer versions of the high-level source packs might be
+attempted.  Versions go together and a page can be found that lists
+them under:
+
+  http://oink.fnal.gov/distro/art/
+
+On the other hand, changing these may just cause more trouble.
+
+*** Patches
+
+If any automatic patching is required the patch file must be named
+after the package it patches and put at =$patchdir/$package.patch=.
+Patches must be applicable relative to =$proddir/=.  A
+=$patchdir/$package.patch.applied= file is created when the patch is
+applied so if the source is cleaned out for a re-build this file must
+be removed.
+
+
+
+
+** If Fail, Fail Obviously 
+
+The script does not build in parallel and tries hard to abort if any
+failure is detected.  Some lower level failures that are not
+communicated may still be ignored.
+
+** Idempotency
+
+The script is written to be idempotent so that rerunning does not
+reoccur the same pain of waiting through parts that are already done.
+However, care must be taken to restart a build after a failure.  Many
+of the underlying build scripts will create the flag used to indicate
+success (the =<pkg>/vX_Y_Z.version= directory).  If a package build
+fails you must manually remove this directory or a restart will gloss
+over the failed package.
+
+FIXME: this is considered a bug in =notes.sh=.
+
