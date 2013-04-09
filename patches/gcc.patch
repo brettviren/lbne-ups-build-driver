@@ -1,0 +1,24 @@
+--- gcc/v4_7_1/ups/findstdc.sh	2011-09-20 16:32:46.000000000 -0400
++++ gcc/v4_7_1/ups/findstdc.sh.mod	2013-03-29 17:45:20.000000000 -0400
+@@ -37,7 +37,8 @@
+    then
+       STDCPPLIB=`rpm -ql gcc4-c++ | grep libstdc++.a`
+    else
+-      STDCPPLIB=`rpm -ql libstdc++-devel.${plat} | grep libstdc++.a`
++      #STDCPPLIB=`rpm -ql libstdc++-devel.${plat} | grep libstdc++.a`
++       STDCPPLIB=/usr/lib/gcc/$(gcc -dumpmachine)/$(gcc -dumpversion)/libstdc++.a
+    fi
+ else
+    STDCPPLIB=`locate '/usr/*/libstdc++.a' | head -1`
+
+--- gcc/v4_7_1/ups/gcc.table	2012-07-11 15:16:30.000000000 -0400
++++ gcc/v4_7_1/ups/gcc.table.mod	2013-03-29 14:40:52.000000000 -0400
+@@ -31,7 +31,7 @@
+     Execute(set -x, NO_UPS_ENV)
+     exeActionRequired(unpack)
+     exeActionRequired(buildparts)
+-    Execute(cd ${UPS_PROD_DIR}/${UPS_PROD_FLAVOR}/src/gcc-*/host-*/gcc && make check, NO_UPS_ENV)
++    #Execute(cd ${UPS_PROD_DIR}/${UPS_PROD_FLAVOR}/src/gcc-*/host-*/gcc && make check, NO_UPS_ENV)
+     #exeActionRequired(cleanup)
+ 
+ Action=buildvars
