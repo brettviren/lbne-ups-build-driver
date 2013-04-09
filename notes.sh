@@ -6,6 +6,11 @@ usage () {
     exit 1
 }
 
+if [ -n "$SETUP_UPS" -o -n "$UPS_DIR" ] ; then
+    echo "UPS detected.  Run from a clean shell" 1>&2
+    exit 1
+fi
+
 # try again to closely obey instructions in Redmine starting at:
 # https://cdcvs.fnal.gov/redmine/projects/cet-is-public/wiki/Build_packages_required_by_art
 
@@ -167,6 +172,7 @@ builder_script () {
 	return
     fi
 
+    local vd=$(ups_ver_dir $pkg)
     run pushd $vd
     run $script
     cmd popd
@@ -260,8 +266,11 @@ do_nu_ext () {
     builder cry		./buildCry.sh		$base_qual $extra_qual
     builder cstxsd	./buildCstxsd.sh
 
-    builder lhapdf	./buildLhaPDF.sh	$extra_qual $base_qual
+    bugs "the build script has the wrong case in Redmine docs"
+    builder lhapdf	./buildLhapdf.sh	$extra_qual $base_qual
+    set -x
     builder_script lhapdf $proddir/pdfsets ./getPdfSets.sh
+    set +x
 
     builder pythia	./buildPythia.sh	$extra_qual
 
@@ -288,4 +297,4 @@ PRODUCTS=$proddir
 source $PRODUCTS/setup
 
 do_art_ext
-#do_nu_ext
+do_nu_ext
