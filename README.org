@@ -75,9 +75,12 @@ The script is written to be idempotent so that rerunning does not
 reoccur the same pain of waiting through parts that are already done.
 However, care must be taken to restart a build after a failure.  Many
 of the underlying build scripts will create the flag used to indicate
-success (the =<pkg>/vX_Y_Z.version= directory).  If a package build
-fails you must manually remove this directory or a restart will gloss
-over the failed package.
+success (the =<pkg>/vX_Y_Z.version/= directory) before actually
+building the package.  If a package build fails in such a way that
+this directory is created you must manually remove this directory or a
+restart will gloss over the failed package.
 
-FIXME: this is considered a bug in =notes.sh=.
+FIXME: this is considered a bug in =notes.sh=.  Also, it's all or
+nothing and is blind to new version files appearing.
+
 
