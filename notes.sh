@@ -18,6 +18,7 @@ if [ -z "$config" ] ; then
 fi
 top=$(readlink -f $(dirname $BASH_SOURCE))
 source $config
+echo "Products going into $proddir"
 
 # central logging  file
 log=$logdir/log.$(date '+%Y%m%d-%H%M%S')
@@ -94,7 +95,7 @@ assuredir () {
 
 ups_ver_dir () {
     local pkg=$1 ; shift
-    ls -d $products/$pkg/v* 2>/dev/null | grep -v .version | tail -1
+    ls -d $proddir/$pkg/v* 2>/dev/null | grep -v .version | tail -1
 }
 
 unpack () {
@@ -146,7 +147,7 @@ apply_patch () {
 	return
     fi
 
-    run pushd $products
+    run pushd $proddir
     run patch -p0 < $patch
     run touch $flag
     cmd popd
@@ -156,23 +157,15 @@ apply_patch () {
     fi
 }
 
-builder () {
+builder_script () {
     local pkg=$1 ; shift
+    local creates=$1 ; shift
     local script="$@" 
-
-    local vd=$(ups_ver_dir $pkg)
-    local creates=$vd.version
-
+    
     if [ -d "$creates" -o -f "$creates" ] ; then
 	idem "Already created $creates with $script"
 	return
     fi
-
-    apply_patch $pkg
-
-    # Common build environment setup
-    PRODUCTS=$products
-    source $PRODUCTS/setup
 
     run pushd $vd
     run $script
@@ -185,6 +178,34 @@ builder () {
     fail "failed to create $creates with $cmd"
 }
 
+builder () {
+    local pkg=$1 ; shift
+    local script="$@" 
+
+    local vd=$(ups_ver_dir $pkg)
+    local creates=$vd.version
+
+    apply_patch $pkg
+    builder_script $pkg $creates $script
+
+    # if [ -d "$creates" -o -f "$creates" ] ; then
+    # 	idem "Already created $creates with $script"
+    # 	return
+    # fi
+
+    # apply_patch $pkg
+
+    # run pushd $vd
+    # run $script
+    # cmd popd
+
+    # if [ -d "$creates" -o -f "$creates" ] ; then
+    # 	return
+    # fi
+
+    # fail "failed to create $creates with $cmd"
+}
+
 
 ###########
 # Actions #
@@ -192,7 +213,7 @@ builder () {
 
 # prepare the build area
 do_prep () {
-    assuredir $products $downloads
+    assuredir $proddir $downloads
 }
 
 
@@ -203,7 +224,7 @@ do_ups () {
     tarball=$(download $ups_url)
 
     bugs "docs: the ups-upd version 4.9.7 tarball is bz2 not tgz"
-    unpack $products auto $tarball $products/ups
+    unpack $proddir auto $tarball $proddir/ups
 
     builder ups ./buildUps.sh
 }
@@ -214,13 +235,57 @@ do_ups () {
 do_art_ext () {
 
     tarball=$(download $art_ext_url)
-    unpack $products auto $tarball $products/cmake
+    unpack $proddir auto $tarball $proddir/cmake
 
     builder cmake ./buildCmake.sh
     builder gcc ./buildGCC.sh
+
+    builder boost	./buildBoost.sh		$base_qual $extra_qual 
+    builder python	./buildPython.sh
+    builder fftw	./buildFFTW.sh		$extra_qual
+    builder cppunit	./buildCppunit.sh	$extra_qual $base_qual
+    builder libsigcpp	./buildLibsigcpp.sh	$extra_qual $base_qual
+    builder gccxml	./buildGccxml.sh
+    builder clhep	./buildClhep.sh		$extra_qual $base_qual
+    builder sqlite	./buildSqlite.sh	$extra_qual
+    builder libxml2	./buildLibxml2.sh	$extra_qual
+    builder tbb		./buildTBB.sh           $base_qual $extra_qual
+}
+
+do_nu_ext () {
+    tarball=$(download $nu_ext_url)
+    unpack $proddir auto $tarball $proddir/cry
+
+    builder xerces_c	./buildXerces.sh	$extra_qual $base_qual
+    builder cry		./buildCry.sh		$base_qual $extra_qual
+    builder cstxsd	./buildCstxsd.sh
+
+    builder lhapdf	./buildLhaPDF.sh	$extra_qual $base_qual
+    builder_script lhapdf $proddir/pdfsets ./getPdfSets.sh
+
+    builder pythia	./buildPythia.sh	$extra_qual
+
+    builder log4cpp	./buildLog4cpp.sh	$base_qual $extra_qual
+    bugs "not fixing log4cpp-config"
+
+    builder mysql_client ./buildMysql.sh	$base_qual
+    builder postgresql	./buildPostgres.sh
+
+    builder geant4	./buildGeant4.sh	$base_qual $extra_qual
+    builder_script geant4 ./getG4DataSets.sh
+
+    builder root	./buildRoot.sh		$exp_qual:$base_qual $extra_qual
+    builder genie	./buildGenie.sh		$base_qual $extra_qual
+
 }
 
 
 do_prep
 do_ups
+
+# Common build environment setup
+PRODUCTS=$proddir
+source $PRODUCTS/setup
+
 do_art_ext
+#do_nu_ext

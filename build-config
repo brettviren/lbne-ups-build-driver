@@ -10,8 +10,13 @@ nu_ext_url=http://oink.fnal.gov/distro/art/nu_extras-0.06.03-source.tar.bz2
 
 # where things go
 downloads=$top/downloads
-products=$top/products
+proddir=$top/products
 patchdir=$top/patches
 logdir=$top/logs
+
+# How they are built
+extra_qual=prof			# debug/prof/opt
+base_qual=e2			# e2 ??
+exp_qual=nu			# only tried "nu"
 
 

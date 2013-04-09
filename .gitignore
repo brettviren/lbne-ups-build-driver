@@ -2,3 +2,4 @@ products
 *~
 logs
 downloads
+*.patch.applied
