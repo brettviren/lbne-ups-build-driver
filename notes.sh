@@ -193,23 +193,6 @@ builder () {
 
     apply_patch $pkg
     builder_script $pkg $creates $script
-
-    # if [ -d "$creates" -o -f "$creates" ] ; then
-    # 	idem "Already created $creates with $script"
-    # 	return
-    # fi
-
-    # apply_patch $pkg
-
-    # run pushd $vd
-    # run $script
-    # cmd popd
-
-    # if [ -d "$creates" -o -f "$creates" ] ; then
-    # 	return
-    # fi
-
-    # fail "failed to create $creates with $cmd"
 }
 
 
@@ -227,7 +210,7 @@ do_prep () {
 # https://cdcvs.fnal.gov/redmine/projects/cet-is-public/wiki/Build_a_distributable_ups
 do_ups () {
 
-    tarball=$(download $ups_url)
+    local tarball=$(download $ups_url)
 
     bugs "docs: the ups-upd version 4.9.7 tarball is bz2 not tgz"
     unpack $proddir auto $tarball $proddir/ups
@@ -240,7 +223,7 @@ do_ups () {
 # https://cdcvs.fnal.gov/redmine/projects/cet-is-public/wiki/Building_art_externals
 do_art_ext () {
 
-    tarball=$(download $art_ext_url)
+    local tarball=$(download $art_ext_url)
     unpack $proddir auto $tarball $proddir/cmake
 
     builder cmake ./buildCmake.sh
@@ -259,7 +242,7 @@ do_art_ext () {
 }
 
 do_nu_ext () {
-    tarball=$(download $nu_ext_url)
+    local tarball=$(download $nu_ext_url)
     unpack $proddir auto $tarball $proddir/cry
 
     builder xerces_c	./buildXerces.sh	$extra_qual $base_qual
@@ -281,13 +264,22 @@ do_nu_ext () {
     builder postgresql	./buildPostgres.sh
 
     builder geant4	./buildGeant4.sh	$base_qual $extra_qual
-    builder_script geant4 ./getG4DataSets.sh
+    builder_script geant4 $proddir/g4surface ./getG4DataSets.sh
 
     builder root	./buildRoot.sh		$exp_qual:$base_qual $extra_qual
     builder genie	./buildGenie.sh		$base_qual $extra_qual
 
 }
 
+do_art_suite () {
+    local tarball=$(download $art_suite_url)
+    unpack $proddir auto $tarball $proddir/art_suite
+
+    builder_script art_suite "$(ups_ver_dir cetlib)" ./buildCET.sh $extra_qual $base_qual
+
+    bugs "ART's idem flag is not good"
+    builder_script art_suite $proddir/art ./buildArt.sh $exp_qual:$base_qual $extra_qual 
+}
 
 do_prep
 do_ups
@@ -298,3 +290,4 @@ source $PRODUCTS/setup
 
 do_art_ext
 do_nu_ext
+do_art_suite
