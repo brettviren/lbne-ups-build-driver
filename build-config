@@ -7,16 +7,19 @@ ups_url=http://oink.fnal.gov/distro/relocatable-ups/ups-upd-4.9.7-source.tar.bz2
 art_ext_url=http://oink.fnal.gov/distro/art/art_externals-0.06.03-source.tar.bz2
 art_suite_url=http://oink.fnal.gov/distro/art/art_suite-1.03.08-source.tar.bz2
 nu_ext_url=http://oink.fnal.gov/distro/art/nu_extras-0.06.03-source.tar.bz2
+lar_bootstrap_url=https://cdcvs.fnal.gov/redmine/projects/larsoftsvn/repository/raw/trunk/SRT_LAR/scripts/lar_srt_bootstrap
+lar_update_url=https://cdcvs.fnal.gov/redmine/projects/larsoftsvn/repository/raw/trunk/SRT_LAR/scripts/lar_update_rel
 
 # where things go
 downloads=$top/downloads
 proddir=$top/products
 patchdir=$top/patches
 logdir=$top/logs
+lardir=$top/larsoft
 
 # How they are built
 extra_qual=prof			# debug/prof/opt
-base_qual=e2			# e2 ??
+base_qual=e2			# https://cdcvs.fnal.gov/redmine/projects/cet-is-public/wiki/AboutQualifiers
 exp_qual=nu			# only tried "nu"
-
+lar_release=development		# how to specify in general?
 

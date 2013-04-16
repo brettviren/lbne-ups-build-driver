@@ -1,0 +1,58 @@
+File	= table
+Product	= larsoft
+
+Group: 
+
+Flavor=ANY
+Qualifiers=
+
+  Action=ExtraSetup
+
+
+Flavor=ANY
+Qualifiers=prof
+
+  Action=ExtraSetup
+
+    setupRequired( art v1_03_08 -q e2:nu:prof)
+    setupRequired( genie v3665c -q prof:e2)
+    setupRequired( cry v1_7 -q prof:e2 )
+
+Flavor=ANY
+Qualifiers=opt
+
+  Action=ExtraSetup
+
+    setupRequired( art v1_03_08 -q e2:nu:opt)
+    setupRequired( genie v3665c -q opt:e2)
+    setupRequired( cry v1_7 -q opt:e2 )
+
+
+Common:
+
+  Action = setup
+    prodDir()
+    setupEnv()
+    envSet(${UPS_PROD_NAME_UC}_VERSION, development)
+
+    envSet(${UPS_PROD_NAME_UC}_INC, ${UPS_PROD_DIR}/include) 
+    envSet(${UPS_PROD_NAME_UC}_LIB, ${${UPS_PROD_NAME_UC}_FQ_DIR}/lib) 
+    pathPrepend(LD_LIBRARY_PATH, ${${UPS_PROD_NAME_UC}_LIB})
+
+    # add the bin directory to the path
+    pathPrepend(PATH, ${${UPS_PROD_NAME_UC}_FQ_DIR}/bin )
+    # dropit -E removes non-existent directories
+    Execute(dropit -E, NO_UPS_ENV, PATH)
+
+    exeActionRequired(ExtraSetup)
+    
+    envSet(SRT_GCC, GCC)
+    envSet(srt_releases, `dirname ${UPS_PROD_DIR}` )
+    envSet(SRT_DIST, `dirname $srt_releases` )
+    envSet(DEFAULT_SRT_DIST, $SRT_DIST)
+    setupRequired( SoftRelTools HEAD )
+    execute( srt_setup -d SRT_QUAL=${UPS_PROD_QUALIFIERS} SRT_BASE_RELEASE=${UPS_PROD_VERSION} , UPS_ENV)
+
+
+
+End:

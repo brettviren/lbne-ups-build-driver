@@ -80,10 +80,16 @@ download () {
             idem "Already downloaded: $file"
             continue
         fi
-        run wget -o $file.log -O $file $url 
-	if [ ! -f $file ] ; then
-	    fail "failed to download $url to $file"
+        run wget --no-check-certificate -o $file.log -O $file $url 
+	if  [ ! -f $file ] ; then
+	    fail "failed to anything from $url to $file"
 	fi
+
+	if [ ! -s $file ] ; then
+	    rm -f $file
+	    fail "downloaded $url to $file but it is zero length"
+	fi
+
     done
 }
 
@@ -277,8 +283,65 @@ do_art_suite () {
 
     builder_script art_suite "$(ups_ver_dir cetlib)" ./buildCET.sh $extra_qual $base_qual
 
-    bugs "ART's idem flag is not good"
-    builder_script art_suite $proddir/art ./buildArt.sh $exp_qual:$base_qual $extra_qual 
+    # hack around the fact that the installation produces the art/v*
+    # directly unlike everything else so far.
+    local artout="$(ups_ver_dir art)"
+    if [ -z "$artout" ] ; then
+	artout=$proddir/art
+    fi
+    builder_script art_suite $artout ./buildArt.sh $exp_qual:$base_qual $extra_qual 
+}
+
+# https://cdcvs.fnal.gov/redmine/projects/larsoftsvn/wiki/Installing_a_local_copy_of_LArSoft_and_the_external_products
+do_larsoft_download () {
+    local bootstrap=$(download $lar_bootstrap_url)
+    local updater=$(download $lar_update_url)
+    
+    run chmod  +x $bootstrap $updater
+
+    # fingers crossed:
+
+    local larsetup=$lardir/srt/srt.sh
+
+    if [ ! -f $larsetup ] ; then
+	msg "If asked for a CVS password, enter your Fermilab \"services\" one"
+	run $bootstrap $lardir
+    fi
+    
+    msg "Sourcing larsoft srt setup: $larsetup"
+    source $larsetup
+
+    if [ ! -d $lardir/releases/development/include/ ] ; then
+	run $updater -rel $lar_release
+    fi
+
+    # At this point the code exists and one has to set up the larsoft
+    # build environment.
+
+    
+    # declare SoftRelTools to UPS
+    if [ ! -d $proddir/SoftRelTools/HEAD.version ] ; then
+	run ups declare SoftRelTools HEAD \
+            -r $lardir/packages/SoftRelTools/HEAD \
+            -4 -m SoftRelTools.table -M ups
+    fi
+
+    # Put larsoft table file in place if it's not there already
+    local lar_ups_dir=$lardir/releases/development/setup/ups
+    if [ ! -d $lar_ups_dir ] ; then
+	run mkdir -p $lar_ups_dir
+    fi
+    if [ ! -f $lar_ups_dir/larsoft.table ] ; then
+	run cp larsoft.table $lar_ups_dir
+    fi
+
+    # Declare larsoft to UPS
+    if [ ! -d $proddir/larsoft/development.version ] ; then
+	run ups declare larsoft development \
+	    -r $lardir/releases/development \
+	    -4 -m larsoft.table -M setup/ups -q prof
+    fi
+
 }
 
 do_prep
@@ -291,3 +354,5 @@ source $PRODUCTS/setup
 do_art_ext
 do_nu_ext
 do_art_suite
+do_larsoft_download
+
