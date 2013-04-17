@@ -311,9 +311,8 @@ do_larsoft_download () {
     msg "Sourcing larsoft srt setup: $larsetup"
     source $larsetup
 
-    if [ ! -d $lardir/releases/development/include/ ] ; then
-	run $updater -rel $lar_release
-    fi
+    bugs "Updating not yet idempotent"
+    run $updater -rel $lar_release
 
     # At this point the code exists and one has to set up the larsoft
     # build environment.
@@ -342,6 +341,13 @@ do_larsoft_download () {
 	    -4 -m larsoft.table -M setup/ups -q prof
     fi
 
+    if [ -z "$SETUP_LARSOFT" ] ; then
+	setup larsoft development -q prof
+    fi
+
+    if [ -z "$(ls $SRT_PUBLIC_CONTEXT/lib/*/libGenfit.so 2>/dev/null)" ] ; then
+	$SRT_PUBLIC_CONTEXT/SRT_LAR/scripts/lar_build -rel development
+    fi
 }
 
 do_prep

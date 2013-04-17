@@ -1,0 +1,2 @@
+#!/bin/bash
+/bin/bash --rcfile setup_larsoft_shell 

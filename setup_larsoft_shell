@@ -1,0 +1,13 @@
+#!/bin/bash
+
+if [ -f $HOME/.bashrc ] ; then
+    source $HOME/.bashrc
+fi
+
+export PRODUCTS=/data3/lbne/bv/obey/products
+source $PRODUCTS/setup
+setup larsoft development -q prof
+
+PS1="[LS]$PS1"
+
+
