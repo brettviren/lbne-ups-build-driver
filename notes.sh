@@ -312,7 +312,14 @@ do_larsoft_download () {
     source $larsetup
 
     bugs "Updating not yet idempotent"
-    run $updater -rel $lar_release
+
+    local creates="$lardir/releases/development/EventDisplayBase"
+    if [ ! -d $creates ] ; then
+	run $updater -rel $lar_release
+    fi
+    if [ ! -d $creates ] ; then
+	fail "Failed to create $creates"
+    fi
 
     # At this point the code exists and one has to set up the larsoft
     # build environment.
@@ -346,7 +353,7 @@ do_larsoft_download () {
     fi
 
     if [ -z "$(ls $SRT_PUBLIC_CONTEXT/lib/*/libGenfit.so 2>/dev/null)" ] ; then
-	$SRT_PUBLIC_CONTEXT/SRT_LAR/scripts/lar_build -rel development
+	run $SRT_PUBLIC_CONTEXT/SRT_LAR/scripts/lar_build -rel development
     fi
 }
 
