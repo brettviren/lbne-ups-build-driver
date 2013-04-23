@@ -1,0 +1,44 @@
+Technical problems with the build.
+
+* Documentation
+
+ - various "bugs" in the documentation on Redmine found and reported
+
+* Externals
+
+** General
+
+ - inconsistent calling of the various =build*.sh= scripts coupled with documentation bugs led to confusion.
+
+ - caught in the middle of a migration to new build "qualifiers" led to wrong assumptions which led to failed builds
+
+
+** SL53
+
+ - locating native libstdc++ on RACF is foiled because there are multiple versions installed.  A way to unambiguously locate libstdc++ was given. 
+
+ - gcc tests failed and I punted on finding out why and do not run them
+
+** Debian
+
+ - GCC 4.7.1 and Debian do not agree with directory layout conventions.  Building GCC fails unless certain environment variables are set.
+
+* ART
+
+ - ART CMake files require the build environment for the externals to
+   be set up by UPS (or some other means that sets it up identically).
+   Criticism of this approach was given to the ARTists.  It would be
+   better for the low level CMake files to be told explicitly where to
+   find the external packages and then have a higher level layer that
+   "divines" these locations based on UPS environment variables.  This
+   would simplify the ART build system and make ART more appealing to
+   new "customers".
+
+* Larsoft + nusoft
+
+ - The checkout mechanism for the source code packages is overly
+   complicated and broken in such a way that it silently fails to
+   download the nusoft component.  An alternative based on
+   "svn:externals" was suggested.
+
+
