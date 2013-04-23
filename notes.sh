@@ -253,7 +253,7 @@ do_nu_ext () {
 
     builder xerces_c	./buildXerces.sh	$extra_qual $base_qual
     builder cry		./buildCry.sh		$base_qual $extra_qual
-    builder cstxsd	./buildCstxsd.sh
+    #builder cstxsd	./buildCstxsd.sh
 
     bugs "the build script has the wrong case in Redmine docs"
     builder lhapdf	./buildLhapdf.sh	$extra_qual $base_qual
@@ -281,7 +281,12 @@ do_art_suite () {
     local tarball=$(download $art_suite_url)
     unpack $proddir auto $tarball $proddir/art_suite
 
-    builder_script art_suite "$(ups_ver_dir cetlib)" ./buildCET.sh $extra_qual $base_qual
+    local cetout="$(ups_ver_dir cetlib)"
+    if [ -z "$cetout" ] ; then
+	cetout=$proddir/cetlib
+    fi
+    msg "CET is going out to \"$cetout\""
+    builder_script art_suite $cetout ./buildCET.sh $extra_qual $base_qual
 
     # hack around the fact that the installation produces the art/v*
     # directly unlike everything else so far.
@@ -289,6 +294,7 @@ do_art_suite () {
     if [ -z "$artout" ] ; then
 	artout=$proddir/art
     fi
+    msg "ART is going out to \"$artout\""
     builder_script art_suite $artout ./buildArt.sh $exp_qual:$base_qual $extra_qual 
 }
 
