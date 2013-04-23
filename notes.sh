@@ -253,7 +253,7 @@ do_nu_ext () {
 
     builder xerces_c	./buildXerces.sh	$extra_qual $base_qual
     builder cry		./buildCry.sh		$base_qual $extra_qual
-    builder cstxsd	./buildCstxsd.sh
+    #builder cstxsd	./buildCstxsd.sh
 
     bugs "the build script has the wrong case in Redmine docs"
     builder lhapdf	./buildLhapdf.sh	$extra_qual $base_qual
