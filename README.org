@@ -1,5 +1,8 @@
 Build LBNE Software From Source 
 
+Note: this is now centered at [[https://cdcvs.fnal.gov/redmine/projects/lbne-software][this Fermilab Redmine instance]] and has been refactored into [[https://cdcvs.fnal.gov/redmine/projects/lbne-software/repository/show/build][this code]].
+
+
 * What?
 
 This package provides a top-level script to build LBNE software from
